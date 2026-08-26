@@ -1,0 +1,55 @@
+-- [[ Hitbox Expander (Easy Hit) ]] --
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local active = false
+local headSize = 10 -- ปรับขนาดความใหญ่ของหัว/เป้า (ปกติจะประมาณ 1-2)
+-- สร้างปุ่มเปิด/ปิด UI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "HitboxGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 140, 0, 40)
+toggleBtn.Position = UDim2.new(0, 20, 0, 200)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(210, 40, 40)
+toggleBtn.Font = Enum.Font.GothamBold
+toggleBtn.Text = "BIG HITBOX: OFF"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.TextSize = 12
+toggleBtn.Active = true
+toggleBtn.Draggable = true
+toggleBtn.Parent = screenGui
+Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(0, 6)
+toggleBtn.MouseButton1Click:Connect(function()
+active = not active
+if active then
+toggleBtn.Text = "BIG HITBOX: ON"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(40, 200, 90)
+else
+toggleBtn.Text = "BIG HITBOX: OFF"
+toggleBtn.BackgroundColor3 = Color3.fromRGB(210, 40, 40)
+-- คืนค่าขนาดเดิมเมื่อปิด
+for _, p in pairs(Players:GetPlayers()) do
+if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+p.Character.Head.Size = Vector3.new(2, 1, 1)
+p.Character.Head.Transparency = 0
+end
+end
+end
+end)
+-- ขยายฮิตบ็อกซ์ตลอดเวลาที่เปิดใช้งาน
+RunService.RenderStepped:Connect(function()
+if active then
+pcall(function()
+for _, p in pairs(Players:GetPlayers()) do
+if p ~= LocalPlayer and p.Character then
+local head = p.Character:FindFirstChild("Head")
+if head then
+head.Size = Vector3.new(headSize, headSize, headSize)
+head.Transparency = 0.5 -- มองเห็นเป็นเป้าโปร่งแสงลางๆ
+head.CanCollide = false
+end
+end
+end
+end)
